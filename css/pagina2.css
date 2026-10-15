@@ -1,3 +1,10 @@
+body {
+  background-image: url("../img/ScrollBG.png");
+  background-position: top left;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+}
+
 .producto { scroll-margin-top: 5rem; } /* para que el navbar fijo no tape la tarjeta */
 
 .producto-imagen { transition: opacity .2s ease, filter .2s ease; }
