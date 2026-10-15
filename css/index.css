@@ -35,6 +35,26 @@
 .paso-icono,
 .acceso-icono { font-size: 2.5rem; }
 
+.como-funciona .avatar {
+  width: 3rem;
+  height: 3rem;
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background-color: var(--marca);
+  color: #fff;
+  font-weight: 700;
+}
+
+.como-funciona .equipo {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.como-funciona .equipo:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .12);
+}
+
 .particulas-contenedor {
   position: relative;
   overflow: hidden;
@@ -89,4 +109,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hero-shirt { transition: none; }
+  .como-funciona .equipo { transition: none; }
 }
