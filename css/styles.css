@@ -398,6 +398,15 @@ body { background-color: var(--seashell); }
 }
 .producto-imagen svg { width: 100%; max-width: 140px; }
 
+/* Efecto cristal compartido por las tarjetas de equipo y de cómo funciona */
+.equipo {
+  background: rgba(247, 239, 233, .18);
+  border: 1px solid rgba(247, 239, 233, .45);
+  box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .18);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
 /* Foco visible para quien navega con teclado */
 .btn:focus-visible,
 .form-control:focus-visible,
