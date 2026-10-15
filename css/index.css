@@ -27,11 +27,6 @@
   --bs-btn-hover-color: var(--graphite);
 }
 
-.separador-como-funciona {
-  height: 3rem;
-  background: linear-gradient(180deg, #100d10 0%, var(--seashell) 100%);
-}
-
 .paso-icono,
 .acceso-icono { font-size: 2.5rem; }
 
@@ -76,8 +71,15 @@
 }
 
 .como-funciona {
-  background: var(--seashell);
-  color: var(--graphite);
+  margin-block: 12rem;
+  color: var(--seashell);
+}
+.como-funciona::before {
+  content: "";
+  position: absolute;
+  inset: -12rem 0;
+  background: url("../img/BG3.png") center top / auto 100% repeat-x;
+  z-index: 0;
 }
 .como-funciona p { color: rgba(44, 47, 48, .78); }
 
