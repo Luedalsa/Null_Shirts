@@ -2,6 +2,7 @@
 // Dibuja en <ul id="auth-nav"> dos menús desplegables (Registrar / Login)
 // y, si hay sesión, un menú con el nombre del usuario y "Cerrar sesión".
 import { supabase } from "./supabase.js";
+import { obtenerPerfil } from "./perfil.js"
 
 const $nav = document.getElementById("auth-nav");
 
@@ -32,28 +33,6 @@ function mostrarMensaje($caja, texto, ok = false) {
 }
 
 const correoValido = (c) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c);
-
-/* ========================================================================
-   Sesión y perfil
-   ======================================================================== */
-export async function obtenerPerfil() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  // La tabla "perfiles" guarda el rol (ver SQL). Si aún no existe, se usa un rol por defecto.
-  const { data } = await supabase
-    .from("perfiles")
-    .select("nombre, rol")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  return {
-    id: user.id,
-    correo: user.email,
-    nombre: data?.nombre || user.user_metadata?.nombre || user.email,
-    rol: data?.rol || "cliente",
-  };
-}
 
 /* ========================================================================
    Interfaz

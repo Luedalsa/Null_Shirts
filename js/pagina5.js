@@ -1,5 +1,5 @@
 // js/pagina5.js — boletín informativo y blog de comentarios (Supabase)
-import { obtenerPerfil } from "./auth.js";
+import { obtenerPerfil } from "./perfil.js";
 import { supabase } from "./supabase.js";
 
 /* ========================================================================
