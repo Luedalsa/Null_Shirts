@@ -1,0 +1,65 @@
+/* css/pagina5.css — estilos solo de la página de reseñas */
+
+.testimonio {
+  background: rgba(247, 239, 233, .18);
+  border: 1px solid var(--bs-border-color);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.testimonio:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .12);
+}
+.testimonio blockquote { font-style: italic; }
+
+.estrellas {
+  color: #c97218;
+  font-size: 1.25rem;
+  letter-spacing: .1rem;
+}
+
+/* Comentarios */
+.comentario { border-left: 4px solid var(--charcoal); }
+.comentario .avatar-mini {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background-color: var(--marca);
+  color: var(--seashell);
+  font-weight: 700;
+}
+.comentario-texto { white-space: pre-wrap; overflow-wrap: anywhere; }
+.comentario-nuevo { animation: aparecer .5s ease; }
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--superficie);
+  color: var(--graphite);
+}
+.accordion-button:focus {
+  border-color: var(--charcoal);
+  box-shadow: 0 0 0 .25rem rgba(89, 90, 94, .35);
+}
+
+.btn-brand:disabled {
+  background-color: var(--marca);
+  border-color: var(--marca);
+  color: #fff;
+  opacity: .5;
+}
+
+#resultado-boletin:focus { outline: none; }
+
+/* Las anclas no quedan tapadas por el navbar fijo */
+#terminos, #privacidad, #blog { scroll-margin-top: 4rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonio, .comentario-nuevo { transition: none; animation: none; }
+  .testimonio:hover { transform: none; }
+  html { scroll-behavior: auto; }
+}

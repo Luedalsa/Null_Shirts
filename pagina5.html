@@ -1,31 +1,301 @@
 <!doctype html>
-<html class="no-js" lang="">
+<html class="no-js" lang="es">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
-  <link rel="stylesheet" href="css/styles.css">
-  <meta name="description" content="">
+  <title>Null Shirts | Reseñas</title>
+  <meta name="description" content="Lee lo que opinan nuestros clientes, suscríbete al boletín, deja tu comentario en el blog y consulta los términos y la política de privacidad.">
 
-  <meta property="og:title" content="">
-  <meta property="og:type" content="">
+  <!-- Bootstrap primero, luego tus CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/pagina5.css">
+
+  <meta property="og:title" content="Null Shirts | Reseñas">
+  <meta property="og:type" content="website">
   <meta property="og:url" content="">
   <meta property="og:image" content="">
   <meta property="og:image:alt" content="">
 
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
 
   <meta name="theme-color" content="#fafafa">
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-  <!-- Add your site or application content here -->
-  <p>Hello world! This is HTML5 Boilerplate.</p>
-  <script src="js/app.js"></script>
+<!-- ENCABEZADO + NAVEGACIÓN -->
+<header>
+  <nav class="navbar navbar-expand-xl navbar-dark bg-dark sticky-top" aria-label="Navegación principal">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="index.html">Null Shirts</a>
+
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse" data-bs-target="#menu"
+              aria-controls="menu" aria-expanded="false" aria-label="Abrir menú">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav ms-auto mb-2 mb-xl-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina2.html">Productos</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina3.html">Carrito</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina4.html">FAQ y contacto</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina5.html">Reseñas</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina6.html">Ayuda</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina7.html">Lealtad y eventos</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina8.html">Nosotros</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina9.html">Recursos</a></li>
+          <li class="nav-item"><a class="nav-link" href="pagina10.html">Diseñador</a></li>
+        </ul>
+        <ul class="navbar-nav ms-xl-3 align-items-xl-center" id="auth-nav"></ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <!-- 1. ENCABEZADO DE LA SECCIÓN -->
+  <section class="bg-light py-4 border-bottom" aria-labelledby="resenas-titulo">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <h1 id="resenas-titulo" class="h2 fw-bold mb-1">Reseñas</h1>
+        <p class="text-secondary mb-0">Lo que dicen nuestros clientes, el blog de la comunidad y nuestras políticas.</p>
+      </div>
+      <a href="#terminos" class="btn btn-outline-dark">Términos y privacidad</a>
+    </div>
+  </section>
+
+  <!-- 2. TESTIMONIOS -->
+  <section class="py-5" aria-labelledby="testimonios-titulo">
+    <div class="container">
+      <h2 id="testimonios-titulo" class="fw-bold mb-4">Clientes satisfechos</h2>
+      <div class="row g-4">
+
+        <div class="col-md-6 col-lg-4">
+          <figure class="card testimonio h-100 mb-0">
+            <div class="card-body d-flex flex-column">
+              <p class="estrellas mb-2" role="img" aria-label="5 de 5 estrellas">★★★★★</p>
+              <blockquote class="mb-3">
+                <p class="mb-0">Subí mi ilustración y en minutos ya la veía sobre la camiseta. El PDF me sirvió para mostrárselo a mi equipo.</p>
+              </blockquote>
+              <figcaption class="mt-auto small text-secondary">
+                <span class="fw-semibold text-body">Mariana R.</span> · Ilustradora
+              </figcaption>
+            </div>
+          </figure>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <figure class="card testimonio h-100 mb-0">
+            <div class="card-body d-flex flex-column">
+              <p class="estrellas mb-2" role="img" aria-label="5 de 5 estrellas">★★★★★</p>
+              <blockquote class="mb-3">
+                <p class="mb-0">La tela es suave y el color azul se ve tal como en el catálogo. Pedí varias para mi grupo de amigos.</p>
+              </blockquote>
+              <figcaption class="mt-auto small text-secondary">
+                <span class="fw-semibold text-body">Carlos M.</span> · Estudiante
+              </figcaption>
+            </div>
+          </figure>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <figure class="card testimonio h-100 mb-0">
+            <div class="card-body d-flex flex-column">
+              <p class="estrellas mb-2" role="img" aria-label="4 de 5 estrellas">★★★★☆</p>
+              <blockquote class="mb-3">
+                <p class="mb-0">El editor es muy fácil de usar. Me gustaría que hubiera más fuentes, pero en general la experiencia es excelente.</p>
+              </blockquote>
+              <figcaption class="mt-auto small text-secondary">
+                <span class="fw-semibold text-body">Paola G.</span> · Diseñadora gráfica
+              </figcaption>
+            </div>
+          </figure>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. BOLETÍN -->
+  <section class="bg-light py-5" aria-labelledby="boletin-titulo">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-7">
+          <h2 id="boletin-titulo" class="fw-bold mb-1">Suscríbete al boletín</h2>
+          <p class="text-secondary mb-3">Recibe novedades, promociones y nuevos colores directo en tu correo.</p>
+
+          <div id="resultado-boletin" role="status" aria-live="polite" tabindex="-1"></div>
+
+          <form id="form-boletin" novalidate>
+            <label for="b-correo" class="form-label">Correo <span class="text-danger" aria-hidden="true">*</span></label>
+            <div class="input-group has-validation">
+              <input id="b-correo" name="correo" type="email" class="form-control" autocomplete="email"
+                     placeholder="nombre@correo.com" required aria-describedby="e-correo-boletin">
+              <button id="btn-suscribir" type="submit" class="btn btn-brand">Suscribirme</button>
+              <div id="e-correo-boletin" class="invalid-feedback"></div>
+            </div>
+          </form>
+          <p class="small text-secondary mt-2 mb-0">
+            Al suscribirte aceptas la <a href="#privacidad">política de privacidad</a>. Puedes darte de baja cuando quieras.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. BLOG: COMENTARIOS -->
+  <section id="blog" class="py-5" aria-labelledby="blog-titulo">
+    <div class="container">
+      <h2 id="blog-titulo" class="fw-bold mb-1">Blog de la comunidad</h2>
+      <p class="text-secondary mb-4">Cuéntanos qué te parece Null Shirts o comparte tus ideas de diseño.</p>
+
+      <div class="row g-4">
+
+        <!-- Formulario -->
+        <div class="col-lg-5">
+          <form id="form-comentario" class="card card-body" novalidate>
+            <p id="comentar-como" class="small text-secondary mb-3"></p>
+
+            <div class="mb-3">
+              <label for="cm-nombre" class="form-label">Nombre <span class="text-secondary small">(opcional)</span></label>
+              <input id="cm-nombre" name="nombre" type="text" class="form-control" maxlength="40"
+                     placeholder="Anónimo" autocomplete="nickname">
+            </div>
+
+            <div class="mb-3">
+              <label for="cm-texto" class="form-label">Comentario <span class="text-danger" aria-hidden="true">*</span></label>
+              <textarea id="cm-texto" name="texto" class="form-control" rows="4" maxlength="300"
+                        required aria-describedby="e-texto contador-comentario"></textarea>
+              <div class="d-flex justify-content-between">
+                <div id="e-texto" class="invalid-feedback d-block"></div>
+                <small id="contador-comentario" class="text-secondary ms-auto">0 / 300</small>
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+              <button id="btn-comentar" type="submit" class="btn btn-brand">Publicar comentario</button>
+              <button type="reset" class="btn btn-outline-secondary">Borrar</button>
+            </div>
+          </form>
+          <p class="small text-secondary mt-2 mb-0">Los campos con * son obligatorios. Los comentarios se guardan en este navegador.</p>
+        </div>
+
+        <!-- Lista de comentarios -->
+        <div class="col-lg-7">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 mb-0">Comentarios <span id="total-comentarios" class="badge text-bg-secondary">0</span></h3>
+            <button id="btn-borrar-todo" type="button" class="btn btn-outline-danger btn-sm" disabled>Borrar todos</button>
+          </div>
+          <p id="comentarios-vacio" class="text-secondary d-none">Aún no hay comentarios. ¡Sé el primero en escribir uno!</p>
+          <ul id="lista-comentarios" class="list-unstyled d-grid gap-3 mb-0"></ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. TÉRMINOS Y PRIVACIDAD -->
+  <section id="terminos" class="bg-light py-5" aria-labelledby="terminos-titulo">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-9">
+          <h2 id="terminos-titulo" class="fw-bold mb-1">Términos y privacidad</h2>
+          <p class="text-secondary mb-4">Última actualización: octubre de 2026. Este sitio es un proyecto escolar.</p>
+
+          <div class="accordion" id="legal">
+
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#legal-1" aria-expanded="true" aria-controls="legal-1">
+                  Términos y condiciones de uso
+                </button>
+              </h3>
+              <div id="legal-1" class="accordion-collapse collapse show" data-bs-parent="#legal">
+                <div class="accordion-body">
+                  <ul class="mb-0">
+                    <li>Null Shirts es un proyecto académico de la materia IL362: las compras son una simulación y no se realiza ningún cobro ni envío.</li>
+                    <li>Eres responsable de las imágenes y textos que subes al diseñador. No subas contenido ofensivo ni que infrinja derechos de autor.</li>
+                    <li>Los comentarios del blog deben ser respetuosos. Nos reservamos el derecho de eliminar los que no lo sean.</li>
+                    <li>Los precios, existencias y colores mostrados son de ejemplo y pueden cambiar sin previo aviso.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div id="privacidad" class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#legal-2" aria-expanded="false" aria-controls="legal-2">
+                  Política de privacidad
+                </button>
+              </h3>
+              <div id="legal-2" class="accordion-collapse collapse" data-bs-parent="#legal">
+                <div class="accordion-body">
+                  <ul class="mb-0">
+                    <li>Datos que usamos: nombre y correo de tu cuenta, el correo del boletín y los comentarios que publicas.</li>
+                    <li>El carrito, tus diseños y los comentarios se guardan en tu navegador (localStorage). Si inicias sesión, tu diseño también se guarda en la nube.</li>
+                    <li>No vendemos ni compartimos tus datos con terceros.</li>
+                    <li>Puedes borrar tus comentarios desde esta página y los datos del sitio desde la configuración de tu navegador.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#legal-3" aria-expanded="false" aria-controls="legal-3">
+                  Cookies y almacenamiento local
+                </button>
+              </h3>
+              <div id="legal-3" class="accordion-collapse collapse" data-bs-parent="#legal">
+                <div class="accordion-body">
+                  No usamos cookies de seguimiento ni de publicidad. Solo usamos el almacenamiento del navegador
+                  para que el sitio funcione. ¿Dudas? Escríbenos desde <a href="pagina4.html#contacto">Contacto</a>.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <noscript>
+    <div class="container"><p class="alert alert-warning mt-3">Activa JavaScript para suscribirte y comentar.</p></div>
+  </noscript>
+
+  <!-- AVISO (toast) -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="aviso" class="toast align-items-center border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div id="aviso-texto" class="toast-body"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar aviso"></button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- PIE DE PÁGINA -->
+<footer class="bg-dark text-light text-center py-3 mt-auto">
+  <p class="mb-1"><a href="pagina5.html#terminos" class="link-light">Términos y privacidad</a> ·
+    <a href="pagina4.html" class="link-light">Contacto</a></p>
+  <p class="mb-0">&copy; 2026 Null Shirts</p>
+</footer>
+
+<!-- Scripts al final del body. Parcel empaqueta los módulos de js/ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script type="module" src="js/pagina5.js"></script>
+<script type="module" src="js/auth.js"></script>
 
 </body>
 
