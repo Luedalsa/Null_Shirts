@@ -1,14 +1,14 @@
-// js/pagina5.js — boletín informativo y blog de comentarios
+// js/pagina5.js — boletín informativo y blog de comentarios (Supabase)
 import { obtenerPerfil } from "./auth.js";
+import { supabase } from "./supabase.js";
 
 /* ========================================================================
    Constantes
    ======================================================================== */
 const CLAVE_SUSCRIPTORES = "boletin-suscriptores";
-const CLAVE_COMENTARIOS = "blog-comentarios";
 const MIN_COMENTARIO = 5;
 const MAX_COMENTARIO = 300;
-const MAX_GUARDADOS = 100;
+const MAX_MOSTRADOS = 100;
 
 /* ========================================================================
    Referencias al DOM
@@ -137,10 +137,12 @@ async function alSuscribir(evento) {
 }
 
 /* ========================================================================
-   Blog: comentarios
+   Blog: comentarios (tabla "comentarios" en Supabase)
    ======================================================================== */
 let comentarios = [];
 let nombreSesion = ""; // nombre del usuario con sesión; vacío = anónimo
+let usuarioId = null;  // id del usuario con sesión; null = sin sesión
+let esAdmin = false;
 
 function errorTexto(valor) {
   return valor.trim().length < MIN_COMENTARIO
@@ -165,6 +167,11 @@ function formatearFecha(iso) {
   return new Date(iso).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" });
 }
 
+// Solo es comodidad de la interfaz: la seguridad real está en las políticas RLS
+function puedeBorrar(c) {
+  return esAdmin || (usuarioId !== null && c.usuario_id === usuarioId);
+}
+
 // Todo se arma con createElement/textContent: el texto del usuario nunca es HTML
 function crearComentario(c, nuevo = false) {
   const li = document.createElement("li");
@@ -187,18 +194,21 @@ function crearComentario(c, nuevo = false) {
   autor.textContent = c.nombre;
   const fecha = document.createElement("time");
   fecha.className = "small text-secondary";
-  fecha.dateTime = c.fecha;
-  fecha.textContent = formatearFecha(c.fecha);
+  fecha.dateTime = c.created_at;
+  fecha.textContent = formatearFecha(c.created_at);
   datos.append(autor, fecha);
 
-  const quitar = document.createElement("button");
-  quitar.type = "button";
-  quitar.className = "btn btn-outline-danger btn-sm ms-auto";
-  quitar.dataset.id = c.id;
-  quitar.textContent = "Eliminar";
-  quitar.setAttribute("aria-label", `Eliminar el comentario de ${c.nombre}`);
+  cabecera.append(avatar, datos);
 
-  cabecera.append(avatar, datos, quitar);
+  if (puedeBorrar(c)) {
+    const quitar = document.createElement("button");
+    quitar.type = "button";
+    quitar.className = "btn btn-outline-danger btn-sm ms-auto";
+    quitar.dataset.id = c.id;
+    quitar.textContent = "Eliminar";
+    quitar.setAttribute("aria-label", `Eliminar el comentario de ${c.nombre}`);
+    cabecera.append(quitar);
+  }
 
   const texto = document.createElement("p");
   texto.className = "comentario-texto mb-0";
@@ -213,10 +223,27 @@ function mostrarComentarios(idNuevo = null) {
   $lista.replaceChildren(...comentarios.map((c) => crearComentario(c, c.id === idNuevo)));
   $vacio.classList.toggle("d-none", comentarios.length > 0);
   $total.textContent = comentarios.length;
+  $borrarTodo.classList.toggle("d-none", !esAdmin); // "Borrar todos" solo para admin
   $borrarTodo.disabled = comentarios.length === 0;
 }
 
-function alComentar(evento) {
+async function cargarComentarios() {
+  const { data, error } = await supabase
+    .from("comentarios")
+    .select("id, usuario_id, nombre, texto, created_at")
+    .order("created_at", { ascending: false })
+    .limit(MAX_MOSTRADOS);
+
+  if (error) {
+    console.error("No se pudieron cargar los comentarios:", error);
+    mostrarAviso("No pudimos cargar los comentarios.", false);
+    return;
+  }
+  comentarios = data;
+  mostrarComentarios();
+}
+
+async function alComentar(evento) {
   evento.preventDefault();
 
   if (!validarTexto()) {
@@ -224,23 +251,28 @@ function alComentar(evento) {
     return;
   }
 
-  const nombre = $nombre.value.trim() || nombreSesion || "Anónimo";
-  const comentario = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    nombre,
-    texto: $texto.value.trim(),
-    fecha: new Date().toISOString(),
-  };
+  $btnComentar.disabled = true;
+  const { data, error } = await supabase
+    .from("comentarios")
+    .insert({
+      nombre: $nombre.value.trim() || nombreSesion || "Anónimo",
+      texto: $texto.value.trim(),
+      usuario_id: usuarioId, // null si no hay sesión
+    })
+    .select()
+    .single();
+  $btnComentar.disabled = false;
 
-  // El más reciente va primero; se limita la cantidad para no llenar el almacenamiento
-  comentarios = [comentario, ...comentarios].slice(0, MAX_GUARDADOS);
-  const guardado = guardarLista(CLAVE_COMENTARIOS, comentarios);
+  if (error) {
+    console.error("No se pudo publicar el comentario:", error);
+    mostrarAviso("No pudimos publicar tu comentario. Intenta de nuevo.", false);
+    return;
+  }
 
-  mostrarComentarios(comentario.id);
-  mostrarAviso(
-    guardado ? "Comentario publicado." : "Se publicó, pero tu navegador no permite guardarlo.",
-    guardado
-  );
+  // El más reciente va primero
+  comentarios = [data, ...comentarios].slice(0, MAX_MOSTRADOS);
+  mostrarComentarios(data.id);
+  mostrarAviso("Comentario publicado.");
 
   $texto.value = "";
   $texto.classList.remove("is-valid", "is-invalid");
@@ -249,26 +281,41 @@ function alComentar(evento) {
   actualizarContador();
 }
 
-function eliminarComentario(id) {
+async function eliminarComentario(id) {
+  const { error } = await supabase.from("comentarios").delete().eq("id", id);
+  if (error) {
+    console.error("No se pudo eliminar el comentario:", error);
+    mostrarAviso("No pudimos eliminar el comentario.", false);
+    return;
+  }
   comentarios = comentarios.filter((c) => c.id !== id);
-  guardarLista(CLAVE_COMENTARIOS, comentarios);
   mostrarComentarios();
   mostrarAviso("Comentario eliminado.");
 }
 
-function borrarTodos() {
+async function borrarTodos() {
   if (!window.confirm("¿Quieres borrar todos los comentarios?")) return;
+  const { error } = await supabase.from("comentarios").delete().not("id", "is", null);
+  if (error) {
+    console.error("No se pudieron borrar los comentarios:", error);
+    mostrarAviso("No pudimos borrar los comentarios.", false);
+    return;
+  }
   comentarios = [];
-  guardarLista(CLAVE_COMENTARIOS, comentarios);
   mostrarComentarios();
   mostrarAviso("Borraste todos los comentarios.");
 }
 
-// Si hay sesión se usa su nombre; si no, "Anónimo"
-async function cargarNombreSesion() {
+// Si hay sesión se usa su nombre, su id y su rol; si no, "Anónimo"
+async function cargarSesion() {
+  nombreSesion = "";
+  usuarioId = null;
+  esAdmin = false;
   try {
     const perfil = await obtenerPerfil();
     nombreSesion = perfil?.nombre || "";
+    usuarioId = perfil?.id ?? null;
+    esAdmin = perfil?.rol === "admin";
   } catch (error) {
     console.warn("No se pudo leer la sesión:", error);
   }
@@ -309,17 +356,16 @@ $lista.addEventListener("click", (evento) => {
 });
 $borrarTodo.addEventListener("click", borrarTodos);
 
-// Si cambian los comentarios en otra pestaña, se sincronizan aquí
-window.addEventListener("storage", (evento) => {
-  if (evento.key !== CLAVE_COMENTARIOS) return;
-  comentarios = leerLista(CLAVE_COMENTARIOS);
-  mostrarComentarios();
+// Al iniciar o cerrar sesión se actualizan los botones de borrar
+supabase.auth.onAuthStateChange(async (evento) => {
+  if (["SIGNED_IN", "SIGNED_OUT"].includes(evento)) {
+    await cargarSesion();
+    mostrarComentarios();
+  }
 });
 
 /* ========================================================================
    Inicio
    ======================================================================== */
-comentarios = leerLista(CLAVE_COMENTARIOS);
-mostrarComentarios();
 actualizarContador();
-cargarNombreSesion();
+cargarSesion().then(cargarComentarios);
