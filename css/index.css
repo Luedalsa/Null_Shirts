@@ -7,7 +7,7 @@
 .hero-shirt:hover { transform: rotate(-4deg) scale(1.04); }
 
 .hero-section {
-  background: url("../img/BG2.png") center bottom / 100% auto no-repeat;
+  background: url("../img/BG2.png") center bottom / cover no-repeat;
   background-color: var(--graphite);
   color: var(--seashell);
 }
@@ -71,14 +71,14 @@
 }
 
 .como-funciona {
-  margin-block: 12rem;
+  margin-block: 15rem;
   color: var(--seashell);
 }
 .como-funciona::before {
   content: "";
   position: absolute;
-  inset: -12rem 0;
-  background: url("../img/BG3.png") center top / auto 100% repeat-x;
+  inset: -15rem 0;
+  background: url("../img/BG3.png") calc(50% + var(--bg3-scroll-x, 0px)) top / auto 100% repeat-x;
   z-index: 0;
 }
 .como-funciona p { color: rgba(44, 47, 48, .78); }

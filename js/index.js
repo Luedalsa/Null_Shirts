@@ -85,8 +85,34 @@ function iniciarParticulas() {
   drawFrame();
 }
 
+function iniciarFondoComoFunciona() {
+  const section = document.querySelector(".como-funciona");
+  if (!section || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  let framePendiente = false;
+
+  function actualizarPosicion() {
+    framePendiente = false;
+    const rect = section.getBoundingClientRect();
+    const recorrido = window.innerHeight + rect.height;
+    const progreso = (window.innerHeight - rect.top) / recorrido * -3;
+    section.style.setProperty("--bg3-scroll-x", `${progreso * 180}px`);
+  }
+
+  function solicitarActualizacion() {
+    if (framePendiente) return;
+    framePendiente = true;
+    window.requestAnimationFrame(actualizarPosicion);
+  }
+
+  solicitarActualizacion();
+  window.addEventListener("scroll", solicitarActualizacion, { passive: true });
+  window.addEventListener("resize", solicitarActualizacion);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   iniciarParticulas();
+  iniciarFondoComoFunciona();
 
   const contenedor = document.getElementById("destacados");
   if (!contenedor) return;
