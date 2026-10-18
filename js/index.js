@@ -95,7 +95,7 @@ function iniciarFondoComoFunciona() {
     framePendiente = false;
     const rect = section.getBoundingClientRect();
     const recorrido = window.innerHeight + rect.height;
-    const progreso = (window.innerHeight - rect.top) / recorrido * -3;
+    const progreso = (window.innerHeight - rect.top) / recorrido * -1.5;
     section.style.setProperty("--bg3-scroll-x", `${progreso * 180}px`);
   }
 

@@ -1,5 +1,6 @@
 // js/pagina3.js — resumen del carrito de compras
 import { Carrito } from "./carrito.js";
+import { supabase } from "./supabase.js";
 
 /* ========================================================================
    Datos de ejemplo (para probar o tomar capturas con el carrito lleno)
@@ -23,6 +24,21 @@ const escapar = (texto) =>
 
 const colorValido = (color) => (/^#[0-9a-f]{3,8}$/i.test(color) ? color : "#cccccc");
 
+// Traduce los errores que lanza la función finalizar_compra() de la BD
+function traducirErrorCompra(error) {
+  const m = error?.message || "";
+  if (m.includes("SIN_SESION")) return "Inicia sesión para finalizar tu compra.";
+  if (m.includes("CARRITO_VACIO")) return "Tu carrito está vacío.";
+  if (m.includes("STOCK_INSUFICIENTE")) {
+    const nombre = m.split("STOCK_INSUFICIENTE:")[1]?.trim();
+    return `Ya no hay existencias suficientes de ${nombre}. Ajusta tu carrito.`;
+  }
+  if (m.includes("PRODUCTO_NO_EXISTE")) return "Un producto de tu carrito ya no existe.";
+  if (m.toLowerCase().includes("fetch") || m.toLowerCase().includes("network"))
+    return "No hay conexión con el servidor.";
+  return "No pudimos procesar tu compra. Intenta de nuevo.";
+}
+
 /* ========================================================================
    Interfaz (DOM)
    ======================================================================== */
@@ -38,6 +54,7 @@ const $vaciar = document.getElementById("btn-vaciar");
 const $ejemplo = document.getElementById("btn-ejemplo");
 const $modal = document.getElementById("modal-compra");
 const $modalResumen = document.getElementById("modal-resumen");
+const $modalPuntos = document.getElementById("modal-puntos");
 const $aviso = document.getElementById("aviso");
 const $avisoTexto = document.getElementById("aviso-texto");
 
@@ -118,8 +135,9 @@ $vaciar.addEventListener("click", () => {
   mostrarAviso("Vaciaste el carrito.");
 });
 
-// Finalizar: revisa la información y actúa distinto si es correcta o no
-$finalizar.addEventListener("click", () => {
+// Finalizar: registra la compra en Supabase (pedido, artículos, existencias y puntos).
+// Todo se valida en la función finalizar_compra() de la BD; aquí solo se envía id, talla y cantidad.
+$finalizar.addEventListener("click", async () => {
   carrito.cargar(); // por si el carrito cambió en otra pestaña
 
   if (carrito.items.length === 0) {
@@ -128,14 +146,34 @@ $finalizar.addEventListener("click", () => {
     return;
   }
 
-  const articulos = carrito.cantidadTotal();
-  const total = carrito.total();
-  $modalResumen.textContent =
-    `Compraste ${articulos} ${articulos === 1 ? "artículo" : "artículos"} por ${moneda(total)}.`;
+  $finalizar.disabled = true;
+  $finalizar.textContent = "Procesando…";
 
-  carrito.vaciar();
-  mostrarCarrito();
-  bootstrap.Modal.getOrCreateInstance($modal).show();
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      mostrarAviso("Inicia sesión para finalizar tu compra.", false);
+      return;
+    }
+
+    const items = carrito.items.map(({ id, talla, cantidad }) => ({ id, talla, cantidad }));
+    const { data, error } = await supabase.rpc("finalizar_compra", { p_items: items });
+    if (error) throw error;
+
+    const compra = data[0];
+    $modalResumen.textContent =
+      `Compraste ${compra.o_articulos} ${compra.o_articulos === 1 ? "artículo" : "artículos"} por ${moneda(Number(compra.o_total))}.`;
+    $modalPuntos.textContent = `Ganaste ${compra.o_puntos} puntos de lealtad.`;
+
+    carrito.vaciar();
+    bootstrap.Modal.getOrCreateInstance($modal).show();
+  } catch (error) {
+    console.error("No se pudo finalizar la compra:", error);
+    mostrarAviso(traducirErrorCompra(error), false);
+  } finally {
+    $finalizar.textContent = "Finalizar compra";
+    mostrarCarrito(); // reactiva o desactiva los botones según el carrito
+  }
 });
 
 $ejemplo.addEventListener("click", () => {
