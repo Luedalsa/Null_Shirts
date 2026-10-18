@@ -497,9 +497,16 @@ body { background-color: var(--seashell); }
   transform-style: preserve-3d;         /* camiseta y anillo comparten el mismo espacio 3D */
 }
 .orbita-escena .hero-shirt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   display: block;
   width: 100%;
   max-width: none;
+  transform: translate(-50%, -50%);
+}
+.orbita-escena .hero-shirt:hover {
+  transform: translate(-50%, -50%) rotate(-4deg) scale(1.04);
 }
 
 .orbita {
@@ -523,9 +530,11 @@ body { background-color: var(--seashell); }
 }
 .estampado img {
   display: block;
-  width: 120%;
-  height: 120%;
-  object-fit: contain;
+  top: -30%;
+  left: -30%;
+  width: 130%;
+  height: 130%;
+  object-fit: fill;
   /* contra-giro: el estampado siempre mira de frente al espectador */
   animation: contragiro 10s ease-in-out infinite;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .35));
