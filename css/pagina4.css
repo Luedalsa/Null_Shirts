@@ -20,12 +20,12 @@
 
 /* Acordeón con el color de la marca */
 .accordion-button:not(.collapsed) {
-  background-color: #fbeedd;
-  color: #212529;
+  background-color: var(--superficie);
+  color: var(--graphite);
 }
 .accordion-button:focus {
   border-color: var(--marca);
-  box-shadow: 0 0 0 .25rem rgba(224, 133, 36, .35);
+  box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--cool-steel) 35%, transparent);
 }
 
 .btn-brand:disabled {

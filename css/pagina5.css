@@ -12,7 +12,7 @@
 .testimonio blockquote { font-style: italic; }
 
 .estrellas {
-  color: #c97218;
+  color: var(--marca);
   font-size: 1.25rem;
   letter-spacing: .1rem;
 }

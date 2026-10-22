@@ -444,9 +444,9 @@ body { background-color: var(--seashell); }
 }
 .btn-brand:hover,
 .btn-brand:focus {
-  background-color: #c97218;
-  border-color: #c97218;
-  color: #fff;
+  background-color: var(--marca-hover);
+  border-color: var(--marca-hover);
+  color: var(--seashell);
 }
 
 /* Tarjetas con animación al pasar el cursor */
@@ -461,7 +461,7 @@ body { background-color: var(--seashell); }
 }
 
 .producto-imagen {
-  background-color: #f1f1f1;
+  background-color: var(--superficie);
   padding: 1.5rem;
 }
 .producto-imagen svg { width: 100%; max-width: 140px; }
