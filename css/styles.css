@@ -276,6 +276,12 @@ main { flex: 1; }
 
 html { color: var(--graphite); }
 body { background-color: var(--seashell); }
+.pagina-interna {
+  background-image: url("../img/ScrollBG.png");
+  background-position: top left;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+}
 
 ::selection { background: var(--cool-steel); color: var(--graphite); }
 ::-moz-selection { background: var(--cool-steel); color: var(--graphite); }

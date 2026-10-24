@@ -105,25 +105,6 @@ function resaltarDesdeHash() {
   setTimeout(() => tarjeta.classList.remove("resaltado"), 2000);
 }
 
-function iniciarParallaxFondo() {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  let actualizando = false;
-
-  const actualizarPosicion = () => {
-    document.body.style.backgroundPositionY = `${window.scrollY * 0.5}px`;
-    actualizando = false;
-  };
-
-  window.addEventListener("scroll", () => {
-    if (actualizando) return;
-    actualizando = true;
-    requestAnimationFrame(actualizarPosicion);
-  }, { passive: true });
-
-  actualizarPosicion();
-}
-
 /* ------------------------------------------------------------------------
    Eventos
    ------------------------------------------------------------------------ */
@@ -170,7 +151,6 @@ window.addEventListener("storage", (evento) => {
    Inicio
    ------------------------------------------------------------------------ */
 document.addEventListener("DOMContentLoaded", async () => {
-  iniciarParallaxFondo();
   try {
     productos = await cargarProductos();
   } catch (error) {
