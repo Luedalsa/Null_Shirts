@@ -89,25 +89,29 @@ function iniciarFondoComoFunciona() {
   const section = document.querySelector(".como-funciona");
   if (!section || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  let framePendiente = false;
+  let posicion = 0;
+  let velocidad = -2;
+  let ultimoScroll = window.scrollY;
 
-  function actualizarPosicion() {
-    framePendiente = false;
-    const rect = section.getBoundingClientRect();
-    const recorrido = window.innerHeight + rect.height;
-    const progreso = (window.innerHeight - rect.top) / recorrido * -1.5;
-    section.style.setProperty("--bg3-scroll-x", `${progreso * 180}px`);
+  function animarFondo() {
+    posicion += velocidad;
+    velocidad = velocidad * 0.70 + -2 * 0.30;
+    section.style.setProperty("--bg3-scroll-x", `${posicion}px`);
+    window.requestAnimationFrame(animarFondo);
   }
 
-  function solicitarActualizacion() {
-    if (framePendiente) return;
-    framePendiente = true;
-    window.requestAnimationFrame(actualizarPosicion);
-  }
+  window.addEventListener("scroll", () => {
+    const scrollActual = window.scrollY;
+    const desplazamiento = scrollActual - ultimoScroll;
+    ultimoScroll = scrollActual;
 
-  solicitarActualizacion();
-  window.addEventListener("scroll", solicitarActualizacion, { passive: true });
-  window.addEventListener("resize", solicitarActualizacion);
+    if (desplazamiento === 0) return;
+
+    const impulso = Math.min(Math.abs(desplazamiento) * 0.12, 8);
+    velocidad += desplazamiento > 0 ? -impulso : impulso;
+  }, { passive: true });
+
+  animarFondo();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

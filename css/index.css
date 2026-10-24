@@ -80,6 +80,7 @@
   inset: -15rem 0;
   background: url("../img/BG3.png") calc(50% + var(--bg3-scroll-x, 0px)) top / auto 100% repeat-x;
   z-index: 0;
+  will-change: background-position;
 }
 .como-funciona p { color: rgba(44, 47, 48, .78); }
 
