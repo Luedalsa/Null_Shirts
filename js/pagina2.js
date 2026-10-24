@@ -1,12 +1,15 @@
 // js/pagina2.js — catálogo de productos y carrito de compras
 import { Carrito } from "./carrito.js";
 import { cargarProductos } from "./productos.js";
+import { obtenerPerfil } from "./perfil.js";
+import { supabase } from "./supabase.js";
 
 /* ========================================================================
    Interfaz (DOM)
    ======================================================================== */
 const carrito = new Carrito();
 let productos = [];
+let esAdmin = false;
 
 const $catalogo = document.getElementById("catalogo");
 const $sinResultados = document.getElementById("sin-resultados");
@@ -42,12 +45,15 @@ function actualizarTarjeta(producto) {
   const agotado = disponible <= 0;
 
   const $stock = tarjeta.querySelector("[data-stock]");
-  if (producto.stock === 0) {
-    $stock.textContent = "Sin existencias";
-  } else if (agotado) {
-    $stock.textContent = "Ya tienes todas las existencias en tu carrito";
-  } else {
-    $stock.textContent = `Quedan ${disponible}` + (enCarrito ? ` (ya tienes ${enCarrito} en tu carrito)` : "");
+  // Para el administrador esta línea contiene el campo editable de stock: no se reescribe
+  if (!esAdmin) {
+    if (producto.stock === 0) {
+      $stock.textContent = "Sin existencias";
+    } else if (agotado) {
+      $stock.textContent = "Ya tienes todas las existencias en tu carrito";
+    } else {
+      $stock.textContent = `Quedan ${disponible}` + (enCarrito ? ` (ya tienes ${enCarrito} en tu carrito)` : "");
+    }
   }
   $stock.classList.toggle("text-danger", agotado || disponible <= 3);
   $stock.classList.toggle("text-success", !agotado && disponible > 3);
@@ -83,7 +89,7 @@ function mostrarCatalogo() {
     default:            lista.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   }
 
-  $catalogo.innerHTML = lista.map((p) => p.tarjeta()).join("");
+  $catalogo.innerHTML = lista.map((p) => p.tarjeta(esAdmin)).join("");
   lista.forEach(actualizarTarjeta);
   $sinResultados.classList.toggle("d-none", lista.length > 0);
 }
@@ -91,8 +97,15 @@ function mostrarCatalogo() {
 function llenarFiltroColor() {
   const colores = [...new Set(productos.map((p) => p.colorNombre))].sort((a, b) => a.localeCompare(b, "es"));
   $filtroColor.innerHTML =
-    `<option value="">Todos</option>` + colores.map((c) => `<option value="${c}">${c}</option>`).join("");
+    `<option value="">Todos</option>` +
+    colores.map((c) => `<option value="${escapar(c)}">${escapar(c)}</option>`).join("");
 }
+
+// Los nombres de color pueden ser editados: se escapan antes de usarlos en innerHTML
+const escapar = (texto) =>
+  String(texto ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
 
 // Si llegas desde "Ver más" del inicio (pagina2.html#producto-3), se resalta esa tarjeta
 function resaltarDesdeHash() {
@@ -103,6 +116,130 @@ function resaltarDesdeHash() {
   tarjeta.scrollIntoView({ behavior: sinMovimiento ? "auto" : "smooth", block: "center" });
   tarjeta.classList.add("resaltado");
   setTimeout(() => tarjeta.classList.remove("resaltado"), 2000);
+}
+
+/* ========================================================================
+   Edición de productos (solo administradores)
+   ======================================================================== */
+const CAMPOS = {
+  nombre:      { columna: "nombre",       tipo: "texto", max: 60,  obligatorio: true,  nombre: "El nombre" },
+  descripcion: { columna: "descripcion",  tipo: "texto", max: 200, obligatorio: true,  nombre: "La descripción" },
+  material:    { columna: "material",     tipo: "texto", max: 60,  obligatorio: true,  nombre: "El material" },
+  colorNombre: { columna: "color_nombre", tipo: "texto", max: 30,  obligatorio: true,  nombre: "El nombre del color" },
+  etiqueta:    { columna: "etiqueta",     tipo: "texto", max: 20,  obligatorio: false, nombre: "La etiqueta" },
+  precio:      { columna: "precio",       tipo: "precio" },
+  stock:       { columna: "stock",        tipo: "entero" },
+  color:       { columna: "color",        tipo: "color" },
+};
+
+// Devuelve { valor } si es válido o { error } si no
+function validarCampo(campo, crudo) {
+  const reglas = CAMPOS[campo];
+  const texto = String(crudo).trim();
+
+  switch (reglas.tipo) {
+    case "texto":
+      if (reglas.obligatorio && !texto) return { error: `${reglas.nombre} no puede quedar vacío.` };
+      if (texto.length > reglas.max) return { error: `${reglas.nombre} admite máximo ${reglas.max} caracteres.` };
+      return { valor: texto };
+    case "precio": {
+      const n = Number(texto.replace(/[$,\s]/g, ""));
+      if (!Number.isFinite(n) || n <= 0) return { error: "El precio debe ser un número mayor a 0." };
+      return { valor: Math.round(n * 100) / 100 };
+    }
+    case "entero": {
+      const n = Number(texto);
+      if (texto === "" || !Number.isInteger(n) || n < 0) {
+        return { error: "El stock debe ser un número entero de 0 o más." };
+      }
+      return { valor: n };
+    }
+    case "color":
+      return /^#[0-9a-f]{6}$/i.test(texto) ? { valor: texto.toLowerCase() } : { error: "Color no válido." };
+  }
+}
+
+// Si RLS bloquea el UPDATE, Supabase no da error pero devuelve 0 filas: se detecta aquí
+async function guardarCampo(producto, campo, valor) {
+  const { data, error } = await supabase
+    .from("productos")
+    .update({ [CAMPOS[campo].columna]: valor })
+    .eq("id", producto.id)
+    .select("id");
+  if (error) throw error;
+  if (!data?.length) throw new Error("Sin permiso para editar este producto.");
+}
+
+const leerCampo = (el) => (el.matches("input") ? el.value : el.textContent);
+function escribirCampo(el, valor) {
+  if (el.matches("input")) el.value = valor;
+  else el.textContent = valor;
+}
+
+// Actualiza solo lo necesario de la tarjeta (sin redibujar, para no perder el foco ni la talla elegida)
+function refrescarTarjetaEditada(tarjeta, producto, campo) {
+  switch (campo) {
+    case "color":
+      tarjeta.querySelector("svg path").setAttribute("fill", producto.color);
+      break;
+    case "nombre":
+      tarjeta.querySelector("svg").setAttribute("aria-label", `Camiseta ${producto.nombre}`);
+      tarjeta.querySelector("[data-accion='agregar']")
+        .setAttribute("aria-label", `Agregar ${producto.nombre} al carrito`);
+      break;
+    case "colorNombre": {
+      const actual = $filtroColor.value;
+      llenarFiltroColor();
+      $filtroColor.value = [...$filtroColor.options].some((o) => o.value === actual) ? actual : "";
+      break;
+    }
+    case "stock":
+      actualizarTarjeta(producto);
+      break;
+  }
+}
+
+async function editarCampo(el) {
+  const campo = el.dataset.campo;
+  const tarjeta = el.closest("[data-id]");
+  const producto = productos.find((p) => p.id === Number(tarjeta?.dataset.id));
+  if (!producto || !CAMPOS[campo]) return;
+
+  const resultado = validarCampo(campo, leerCampo(el));
+  if (resultado.error) {
+    escribirCampo(el, producto[campo]);
+    if (campo === "color") tarjeta.querySelector("svg path").setAttribute("fill", producto.color);
+    mostrarAviso(resultado.error, false);
+    return;
+  }
+
+  escribirCampo(el, resultado.valor); // normaliza (espacios, decimales)
+  if (resultado.valor === producto[campo]) return;
+
+  const anterior = producto[campo];
+  el.classList.add("campo-guardando");
+  try {
+    await guardarCampo(producto, campo, resultado.valor);
+    producto[campo] = resultado.valor;
+    refrescarTarjetaEditada(tarjeta, producto, campo);
+    mostrarAviso("Producto actualizado.", true);
+  } catch (error) {
+    console.error("No se pudo guardar el cambio:", error);
+    escribirCampo(el, anterior);
+    if (campo === "color") tarjeta.querySelector("svg path").setAttribute("fill", anterior);
+    mostrarAviso("No se pudo guardar el cambio. Revisa tu conexión o tus permisos.", false);
+  } finally {
+    el.classList.remove("campo-guardando");
+  }
+}
+
+async function cargarRol() {
+  try {
+    esAdmin = (await obtenerPerfil())?.rol === "admin";
+  } catch (error) {
+    console.warn("No se pudo leer el rol:", error);
+    esAdmin = false;
+  }
 }
 
 /* ------------------------------------------------------------------------
@@ -128,6 +265,43 @@ $catalogo.addEventListener("click", (evento) => {
   }
 });
 
+// Edición (administrador): el texto se guarda al salir del campo. Enter confirma, Esc cancela.
+$catalogo.addEventListener("focusout", (evento) => {
+  const el = evento.target.closest?.("[data-campo]");
+  if (esAdmin && el && el.isContentEditable) editarCampo(el);
+});
+$catalogo.addEventListener("keydown", (evento) => {
+  const el = evento.target.closest?.("[data-campo]");
+  if (!esAdmin || !el || !el.isContentEditable) return;
+  if (evento.key === "Enter") {
+    evento.preventDefault();
+    el.blur();
+  } else if (evento.key === "Escape") {
+    const producto = productos.find((p) => p.id === Number(el.closest("[data-id]").dataset.id));
+    escribirCampo(el, producto[el.dataset.campo]);
+    el.blur();
+  }
+});
+// Evita pegar saltos de línea o formato en los campos
+$catalogo.addEventListener("paste", (evento) => {
+  const el = evento.target.closest?.("[data-campo]");
+  if (!el || !el.isContentEditable) return;
+  evento.preventDefault();
+  const texto = evento.clipboardData.getData("text/plain").replace(/\s+/g, " ");
+  document.execCommand("insertText", false, texto);
+});
+// Color: se ve en vivo mientras eliges y se guarda al cerrar el selector
+$catalogo.addEventListener("input", (evento) => {
+  const el = evento.target;
+  if (esAdmin && el.matches?.("input[data-campo='color']")) {
+    el.closest(".producto-imagen").querySelector("svg path").setAttribute("fill", el.value);
+  }
+});
+$catalogo.addEventListener("change", (evento) => {
+  const el = evento.target;
+  if (esAdmin && el.matches?.("input[data-campo='color']")) editarCampo(el);
+});
+
 $buscador.addEventListener("input", mostrarCatalogo);
 $filtroColor.addEventListener("change", mostrarCatalogo);
 $orden.addEventListener("change", mostrarCatalogo);
@@ -147,6 +321,15 @@ window.addEventListener("storage", (evento) => {
   actualizarContador();
 });
 
+// Al iniciar o cerrar sesión se redibuja el catálogo (setTimeout: no llamar a Supabase dentro del callback de auth)
+supabase.auth.onAuthStateChange((evento) => {
+  if (!["SIGNED_IN", "SIGNED_OUT"].includes(evento)) return;
+  setTimeout(async () => {
+    await cargarRol();
+    if (productos.length) mostrarCatalogo();
+  });
+});
+
 /* ------------------------------------------------------------------------
    Inicio
    ------------------------------------------------------------------------ */
@@ -158,6 +341,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     $catalogo.innerHTML = `<p class="alert alert-danger">No pudimos cargar los productos. Recarga la página para intentar de nuevo.</p>`;
     return;
   }
+  await cargarRol();
   llenarFiltroColor();
   mostrarCatalogo();
   actualizarContador();
