@@ -255,7 +255,7 @@ async function alComentar(evento) {
   const { data, error } = await supabase
     .from("comentarios")
     .insert({
-      nombre: $nombre.value.trim() || nombreSesion || "Anónimo",
+      nombre: usuarioId ? nombreSesion : ($nombre.value.trim() || "Anónimo"),
       texto: $texto.value.trim(),
       usuario_id: usuarioId, // null si no hay sesión
     })
@@ -306,6 +306,18 @@ async function borrarTodos() {
   mostrarAviso("Borraste todos los comentarios.");
 }
 
+// Con sesión iniciada el nombre queda fijo (el del perfil); sin sesión, el campo es libre
+function aplicarNombre() {
+  const bloqueado = Boolean(usuarioId && nombreSesion);
+  if (bloqueado) {
+    $nombre.value = nombreSesion;
+  } else if ($nombre.readOnly) {
+    $nombre.value = ""; // acaba de cerrar sesión: se quita el nombre que estaba fijo
+  }
+  $nombre.readOnly = bloqueado;
+  $nombre.placeholder = bloqueado ? "" : "Anónimo";
+}
+
 // Si hay sesión se usa su nombre, su id y su rol; si no, "Anónimo"
 async function cargarSesion() {
   nombreSesion = "";
@@ -319,8 +331,9 @@ async function cargarSesion() {
   } catch (error) {
     console.warn("No se pudo leer la sesión:", error);
   }
+  aplicarNombre();
   $comentarAs.textContent = nombreSesion
-    ? `Comentarás como ${nombreSesion} (puedes escribir otro nombre).`
+    ? `Comentarás como ${nombreSesion}.`
     : "Si no escribes un nombre, tu comentario aparecerá como Anónimo.";
 }
 
@@ -335,8 +348,8 @@ $correo.addEventListener("input", () => {
 
 $formComentario.addEventListener("submit", alComentar);
 $formComentario.addEventListener("reset", () => {
-  // el reset del navegador ocurre después de este evento
   setTimeout(() => {
+    aplicarNombre();
     $texto.classList.remove("is-valid", "is-invalid");
     $texto.removeAttribute("aria-invalid");
     $errorTexto.textContent = "";
