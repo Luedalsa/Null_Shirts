@@ -71,18 +71,35 @@
 }
 
 .como-funciona {
-  margin-block: 15rem;
+  height: 46rem;
   color: var(--seashell);
+}
+.como-funciona > .container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.como-funciona h2 {
+  margin-bottom: 0 !important;
+}
+.como-funciona .row {
+  margin-top: auto;
 }
 .como-funciona::before {
   content: "";
   position: absolute;
-  inset: -15rem 0;
+  inset: 0;
   background: url("../img/BG3.png") calc(50% + var(--bg3-scroll-x, 0px)) top / auto 100% repeat-x;
   z-index: 0;
   will-change: background-position;
 }
 .como-funciona p { color: rgba(44, 47, 48, .78); }
+
+@media (max-width: 767.98px) {
+  .como-funciona {
+    height: 46rem;
+  }
+}
 
 .destacados-section {
   background: url("../img/BG.png") center top / cover no-repeat;
