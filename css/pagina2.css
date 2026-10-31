@@ -41,8 +41,29 @@
 }
 .producto .badge { z-index: 2; }
 
+/* Tarjeta "+" del administrador */
+.producto-nuevo { border: 2px dashed var(--cool-steel); background: transparent; min-height: 22rem; }
+.producto-nuevo-boton {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--charcoal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  transition: background-color .2s ease, color .2s ease;
+}
+.producto-nuevo-mas { font-size: 4rem; line-height: 1; font-weight: 300; }
+.producto-nuevo-boton:hover:not(:disabled) { background-color: var(--superficie); color: var(--graphite); }
+.producto-nuevo-boton:focus-visible { outline: 3px solid var(--marca); outline-offset: -6px; }
+.producto-nuevo-boton:disabled { opacity: .5; }
+
 @media (prefers-reduced-motion: reduce) {
   .producto-imagen { transition: none; }
   .campo-admin { transition: none; }
+  .producto-nuevo-boton { transition: none; }
   .resaltado { animation: none; outline: 3px solid var(--marca); }
 }

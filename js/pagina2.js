@@ -1,6 +1,6 @@
 // js/pagina2.js — catálogo de productos y carrito de compras
 import { Carrito } from "./carrito.js";
-import { cargarProductos } from "./productos.js";
+import { cargarProductos, Productos } from "./productos.js";
 import { obtenerPerfil } from "./perfil.js";
 import { supabase } from "./supabase.js";
 
@@ -89,7 +89,10 @@ function mostrarCatalogo() {
     default:            lista.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   }
 
-  $catalogo.innerHTML = lista.map((p) => p.tarjeta(esAdmin)).join("");
+  // El administrador ve al final una tarjeta extra con "+" para crear una camiseta
+  $catalogo.innerHTML =
+    lista.map((p) => p.tarjeta(esAdmin)).join("") +
+    (esAdmin ? Productos.tarjetaNueva() : "");
   lista.forEach(actualizarTarjeta);
   $sinResultados.classList.toggle("d-none", lista.length > 0);
 }
@@ -107,15 +110,19 @@ const escapar = (texto) =>
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   }[c]));
 
-// Si llegas desde "Ver más" del inicio (pagina2.html#producto-3), se resalta esa tarjeta
-function resaltarDesdeHash() {
-  if (!/^#producto-\d+$/.test(location.hash)) return;
-  const tarjeta = document.querySelector(location.hash);
-  if (!tarjeta) return;
+// Desplaza la vista a una tarjeta y la resalta un momento
+function resaltarTarjeta(tarjeta) {
   const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   tarjeta.scrollIntoView({ behavior: sinMovimiento ? "auto" : "smooth", block: "center" });
   tarjeta.classList.add("resaltado");
   setTimeout(() => tarjeta.classList.remove("resaltado"), 2000);
+}
+
+// Si llegas desde "Ver más" del inicio (pagina2.html#producto-3), se resalta esa tarjeta
+function resaltarDesdeHash() {
+  if (!/^#producto-\d+$/.test(location.hash)) return;
+  const tarjeta = document.querySelector(location.hash);
+  if (tarjeta) resaltarTarjeta(tarjeta);
 }
 
 /* ========================================================================
@@ -233,6 +240,55 @@ async function editarCampo(el) {
   }
 }
 
+/* ========================================================================
+   Creación de productos (solo administradores)
+   ======================================================================== */
+// Valores iniciales: cumplen las reglas de CAMPOS para que se puedan editar enseguida
+const PRODUCTO_NUEVO = {
+  nombre: "Nueva camiseta",
+  descripcion: "Descripción de la camiseta",
+  material: "Algodón 100%",
+  precio: 199,
+  color: "#cccccc",
+  color_nombre: "Gris",
+  stock: 10,
+  etiqueta: "",
+};
+
+// Inserta la fila en Supabase (la política RLS de INSERT solo lo permite a admins)
+async function crearProducto(boton) {
+  boton.disabled = true;
+  try {
+    const { data, error } = await supabase
+      .from("productos")
+      .insert(PRODUCTO_NUEVO)
+      .select()
+      .single();
+    if (error) throw error;
+
+    const producto = new Productos({ ...data, colorNombre: data.color_nombre });
+    productos.push(producto);
+
+    // Se limpian los filtros para que la tarjeta nueva no quede oculta
+    $buscador.value = "";
+    $filtroColor.value = "";
+    llenarFiltroColor();
+    mostrarCatalogo();
+
+    const tarjeta = document.getElementById(`producto-${producto.id}`);
+    if (tarjeta) {
+      resaltarTarjeta(tarjeta);
+      tarjeta.querySelector("[data-campo='nombre']")?.focus({ preventScroll: true });
+    }
+    mostrarAviso("Camiseta creada. Edita sus datos directamente en la tarjeta.", true);
+  } catch (error) {
+    console.error("No se pudo crear la camiseta:", error);
+    mostrarAviso("No se pudo crear la camiseta. Revisa tu conexión o tus permisos.", false);
+  } finally {
+    boton.disabled = false;
+  }
+}
+
 async function cargarRol() {
   try {
     esAdmin = (await obtenerPerfil())?.rol === "admin";
@@ -245,8 +301,14 @@ async function cargarRol() {
 /* ------------------------------------------------------------------------
    Eventos
    ------------------------------------------------------------------------ */
-// Un solo listener para todos los botones "Agregar" (delegación de eventos)
+// Un solo listener para los botones "Agregar" y "+" (delegación de eventos)
 $catalogo.addEventListener("click", (evento) => {
+  const crear = evento.target.closest("[data-accion='crear']");
+  if (crear) {
+    if (esAdmin) crearProducto(crear);
+    return;
+  }
+
   const boton = evento.target.closest("[data-accion='agregar']");
   if (!boton) return;
 

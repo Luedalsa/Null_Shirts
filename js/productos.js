@@ -133,6 +133,20 @@ export class Productos {
         </article>
       </div>`;
   }
+
+  // Tarjeta "+" que solo ve el administrador (crea una camiseta nueva)
+  static tarjetaNueva() {
+    return `
+      <div class="col-sm-6 col-xl-3">
+        <article class="card producto-nuevo h-100">
+          <button type="button" class="producto-nuevo-boton" data-accion="crear"
+                  aria-label="Crear una nueva camiseta">
+            <span class="producto-nuevo-mas" aria-hidden="true">+</span>
+            <span class="fw-semibold">Nueva camiseta</span>
+          </button>
+        </article>
+      </div>`;
+  }
 }
 
 /* ========================================================================
