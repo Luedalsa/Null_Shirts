@@ -27,9 +27,6 @@
   --bs-btn-hover-color: var(--graphite);
 }
 
-.paso-icono,
-.acceso-icono { font-size: 2.5rem; }
-
 .como-funciona .avatar {
   width: 3rem;
   height: 3rem;

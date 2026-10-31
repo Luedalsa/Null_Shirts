@@ -162,23 +162,6 @@ textarea {
 }
 
 /* ==========================================================================
-   EXAMPLE Media Queries for Responsive Design.
-   These examples override the primary ('mobile first') styles.
-   Modify as content requires.
-   ========================================================================== */
-
-@media only screen and (min-width: 35em) {
-  /* Style adjustments for viewports that meet the condition */
-}
-
-@media print,
-  (-webkit-min-device-pixel-ratio: 1.25),
-  (min-resolution: 1.25dppx),
-  (min-resolution: 120dpi) {
-  /* Style adjustments for high resolution devices */
-}
-
-/* ==========================================================================
    Print styles.
    Inlined to avoid the additional HTTP request:
    https://www.phpied.com/delay-loading-your-print-css/
@@ -256,7 +239,6 @@ main { flex: 1; }
 :root {
   --seashell: #efeae1;
   --cool-steel: #a29e9b;
-  --rosy-granite: #8a8d93;
   --charcoal: #595a5e;
   --graphite: #2c2f30;
 
@@ -311,7 +293,7 @@ body { background-color: var(--seashell); }
 .btn-brand {
   background-color: var(--marca);
   border-color: var(--marca);
-  color: var(--seashell);
+  color: #fff;
 }
 .btn-brand:hover,
 .btn-brand:focus {
@@ -389,14 +371,12 @@ body { background-color: var(--seashell); }
 .btn-animado:focus-visible .btn-icono { transform: scale(1.3) rotate(-8deg); }
 
 /* ===== Tarjetas ===== */
-.producto,
-.acceso {
+.producto {
   transition: transform .2s ease, box-shadow .2s ease;
 }
-.producto:hover,
-.acceso:hover {
+.producto:hover {
   transform: translateY(-6px);
-  box-shadow: 0 .75rem 1.5rem rgba(44, 47, 48, .25);
+  box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .15);
 }
 .producto-imagen {
   background-color: var(--superficie);
@@ -431,59 +411,10 @@ body { background-color: var(--seashell); }
   .btn-animado::before,
   .btn-icono,
   .producto,
-  .acceso,
   .producto-imagen { transition: none; }
   .btn-animado:hover,
   .btn-animado:focus-visible,
-  .producto:hover,
-  .acceso:hover { transform: none; }
-}
-
-/* Menús desplegables de login y registro */
-.menu-auth { min-width: 18rem; }
-@media (max-width: 575.98px) { .menu-auth { min-width: 0; width: 100%; } }
-
-.btn-brand {
-  background-color: var(--marca);
-  border-color: var(--marca);
-  color: #fff;
-}
-.btn-brand:hover,
-.btn-brand:focus {
-  background-color: var(--marca-hover);
-  border-color: var(--marca-hover);
-  color: var(--seashell);
-}
-
-/* Tarjetas con animación al pasar el cursor */
-.producto,
-.acceso {
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.producto:hover,
-.acceso:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .15);
-}
-
-.producto-imagen {
-  background-color: var(--superficie);
-  padding: 1.5rem;
-}
-.producto-imagen svg { width: 100%; max-width: 140px; }
-
-/* Foco visible para quien navega con teclado */
-.btn:focus-visible,
-.form-control:focus-visible,
-.form-select:focus-visible {
-  outline: 3px solid var(--marca);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .producto,
-  .acceso,
-  .producto-imagen { transition: none; }
+  .producto:hover { transform: none; }
 }
 
 /* Menús desplegables de login y registro */
